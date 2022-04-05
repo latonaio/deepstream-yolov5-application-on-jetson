@@ -1,0 +1,23 @@
+# ビルド用イメージ (全部入りイメージ)
+FROM nvcr.io/nvidia/deepstream-l4t:6.0-triton AS builder
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python-pip\
+    python3-pip \
+    python3.8 \
+    python3.8-venv \
+    python3.8-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/nvidia/deepstream/deepstream/sources/
+
+# Deepstream-Yoloのクローン
+RUN git clone https://github.com/marcoslucianops/DeepStream-Yolo.git
+
+WORKDIR /opt/nvidia/deepstream/deepstream/sources/DeepStream-Yolo
+
+RUN CUDA_VER=10.2 make -C nvdsinfer_custom_impl_Yolo
+

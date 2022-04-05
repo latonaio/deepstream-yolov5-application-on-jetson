@@ -1,0 +1,36 @@
+# pytorch入りのdocker image
+FROM nvcr.io/nvidia/l4t-pytorch:r32.6.1-pth1.9-py3
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python-pip\
+    python3-pip \
+    python3.8 \
+    python3.8-venv \
+    python3.8-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/nvidia/deepstream/deepstream/sources/
+
+# Deepstream-Yoloのクローン
+RUN git clone https://github.com/marcoslucianops/DeepStream-Yolo.git
+
+# yolov5 のクローン
+RUN git clone https://github.com/ultralytics/yolov5.git
+
+RUN cp DeepStream-Yolo/utils/gen_wts_yoloV5.py yolov5
+
+# yolov5の学習モデルをダウンロード
+RUN wget -P yolov5 https://github.com/ultralytics/yolov5/releases/download/v6.1/yolov5n.pt
+
+WORKDIR /opt/nvidia/deepstream/deepstream/sources/yolov5
+
+RUN python3.8 -m pip install -U pip setuptools
+
+# python3.8のpipを使ったpackageのinstall
+RUN python3.8 -m pip install -r requirements.txt
+
+# 学習モデルを生成する
+RUN python3.8 gen_wts_yoloV5.py -w yolov5n.pt

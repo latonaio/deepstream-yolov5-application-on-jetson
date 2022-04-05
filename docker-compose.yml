@@ -1,0 +1,25 @@
+version: "3"
+services:
+  deepstream-yolov5:
+    container_name: deepstream-yolov5
+    build:
+      context: .
+      dockerfile: dockerFiles/Dockerfile.deepstream
+    volumes:
+      - ./:/app/src
+    working_dir: /app/src
+    tty: true
+  pytorch-yolov5:
+    container_name: pytorch-yolov5
+    build:
+      context: .
+      dockerfile: dockerFiles/Dockerfile.pytorch
+    volumes:
+      - ./:/app/src
+      # displayの向き先をlocalhostにmountする
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      # host側の:0をdocker container側にも反映させる
+      - DISPLAY
+    working_dir: /app/src
+    tty: true
